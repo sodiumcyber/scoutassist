@@ -9,17 +9,17 @@ This repository provides a streamlined guide and helper scripts for setting up a
 
 ScoutSuite is a powerful open-source tool designed for **cloud security auditing and configuration review**. It achieves this by:
 * **Gathering Configuration Data:** It connects to your various cloud providers (AWS, Azure, GCP, etc.) using your configured credentials.
-* **Identifying Vulnerabilities & Misconfigurations:** It analyzes the collected configuration data against a set of security best practices and common pitfalls to pinpoint potential vulnerabilities and misconfigurations.
-* **Generating User-Friendly Reports:** It presents its findings in a comprehensive, interactive HTML report, making it easy to review and prioritize issues.
+* **Identifying Vulnerabilities & Misconfigurations:** It analyses the collected configuration data against a set of security best practices and common pitfalls to pinpoint potential vulnerabilities and misconfigurations.
+* **Generating User-Friendly Reports:** It presents its findings in a comprehensive, interactive HTML report, making it easy to review and prioritise issues.
 
 ---
 
 ## Advantages of Using ScoutSuite (with this Guide)
 
-Leveraging ScoutSuite with the provided setup scripts offers several key advantages for security professionals and organizations:
+Leveraging ScoutSuite with the provided setup scripts offers several key advantages for security professionals and organisations:
 
 * **Automated Cloud Security Assessment:** Quickly scan your cloud infrastructure for common security weaknesses without manual checks. This automates a significant portion of a cloud security review.
-* **Multi-Cloud Support:** Centralize the auditing of diverse cloud environments (AWS, Azure, GCP, and more) from a single tool and workstation.
+* **Multi-Cloud Support:** Centralise the auditing of diverse cloud environments (AWS, Azure, GCP, and more) from a single tool and workstation.
 * **Actionable Insights:** The detailed HTML reports highlight specific issues, often with hints or links to remediation steps, enabling efficient security hardening.
 * **Simplified Setup on Kali Linux:** The included `install_scoutsuite.sh` and `run_scoutsuite.sh` scripts automate the virtual environment setup and CLI installations, reducing common friction points and getting you productive faster on your preferred pentesting OS.
 * **Open-Source & Extensible:** Being open-source, it benefits from community contributions and can be integrated into broader security workflows.
