@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScoutSuite Setup and Usage Guide</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f7f6;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            box-sizing: border-box;
+        }
+        .center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 80%;
+}
+        h1, h2, h3, h4 {
+            color: #2c3e50;
+            margin-top: 1.5em;
+            margin-bottom: 0.8em;
+        }
+        h1 {
+            font-size: 2.5em;
+            text-align: center;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        h2 {
+            font-size: 2em;
+            color: #3498db;
+            border-bottom: 1px dashed #cccccc;
+            padding-bottom: 10px;
+        }
+        h3 {
+            font-size: 1.5em;
+            color: #4a6c8a;
+        }
+        ul {
+            list-style-type: disc;
+            margin-left: 25px;
+            padding: 0;
+        }
+        ul li {
+            margin-bottom: 8px;
+        }
+ pre {
+        background-color: #e8f4f8;
+        border: 1px solid #cce7f3;
+        padding: 15px;
+        border-radius: 8px;
+        overflow-x: auto; /* This is crucial for horizontal scrolling */
+        font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        font-size: 0.9em;
+        line-height: 1.4;
+        color: #0d47a1;
+        word-wrap: break-word; /* Allows long words to break and wrap */
+        white-space: pre-wrap; /* Ensures text wraps while preserving whitespace */
+    }
+    code {
+        font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        background-color: #f0f0f0;
+        padding: 2px 5px;
+        border-radius: 4px;
+        color: #c0392b;
+        word-wrap: break-word; /* Apply to inline code as well */
+    }
+        strong {
+            color: #2c3e50;
+        }
+        hr {
+            border: 0;
+            height: 1px;
+            background-color: #eee;
+            margin: 40px 0;
+        }
+        .note {
+            background-color: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .code-block-header {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #3498db;
+        }
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 15px;
+                margin: 10px auto;
+            }
+            h1 {
+                font-size: 2em;
+            }
+            h2 {
+                font-size: 1.7em;
+            }
+            h3 {
+                font-size: 1.3em;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+   <a href="https://www.sodiumcyber.com"> https://www.sodiumcyber.com </a>
+        <h1>Automate Setup and Run ScoutSuite for Cloud Security Reviews</h1>
+
+        <p>This guide provides step-by-step instructions on how to install, configure, and use ScoutSuite for security auditing and configuration review of your cloud environments (AWS, Azure, GCP, etc.) on Kali, or other installs of Linux.</p>
+
+        <hr>
+
+        <h2>1. What is ScoutSuite?</h2>
+        <p>ScoutSuite is an open-source multi-cloud security auditing tool that enables security engineers to assess the security posture of cloud environments. It gathers configuration data from cloud providers and identifies potential vulnerabilities and misconfigurations, presenting findings in a user-friendly HTML report.</p>
+
+        <hr>
+
+        <h2>2. Prerequisites</h2>
+        <p>For the easiest setup before you begin, ensure you have:</p>
+        <ul>
+            <li><strong>Kali Linux:</strong> A fresh installation is recommended for a clean setup.</li>
+            <li><strong>Python 3:</strong> Kali Linux typically comes with Python 3 pre-installed.</li>
+            <li><strong><code>python3-venv</code>:</strong> This package is required to create virtual environments. The installation script will check for it.</li>
+            <li><strong><code>unzip</code>:</strong> Needed for the AWS CLI v2 installation. The installation script will attempt to install it.</li>
+            <li><strong><code>ca-certificates</code> and <code>gnupg</code>:</strong> Required for securely adding new APT repositories for Azure and Google Cloud CLIs. The installation script will attempt to install them.</li>
+            <li><strong>Internet Connection:</strong> Required for downloading packages and CLIs.</li>
+            <li><strong>Cloud Provider Credentials:</strong> You will need appropriate API credentials (e.g., AWS Access Keys, Azure Service Principal, GCP Service Account Key) configured on your Kali machine to allow ScoutSuite to access your cloud environment. <strong>Do NOT embed these directly into scripts or store them insecurely.</strong> Refer to your cloud provider's documentation for secure credential management.</li>
+        </ul>
+
+        <hr>
+
+        <h2>3. Setup Scripts</h2>
+        <p>You will use two bash scripts to streamline the process:</p>
+        <ul>
+            <li><code>install_scoutsuite.sh</code>: For setting up the virtual environment, installing ScoutSuite, and installing necessary Cloud CLIs.</li>
+            <li><code>run_scoutsuite.sh</code>: For activating the virtual environment and executing ScoutSuite commands.</li>
+        </ul>
+        <div class="note">
+            <p><strong>Important:</strong> These scripts will create the virtual environment in your user's home directory (e.g., <code>/home/kali/scoutsuite_venv</code>).</p>
+        </div>
+
+        <h3>3.1. Create <code>install_scoutsuite.sh</code></h3>
+        <p>Create a file named <code>install_scoutsuite.sh</code> (e.g., in your home directory <code>~/</code>) and paste the following content:</p>
+        <pre><code>#!/bin/bash
+
+# Determine the actual user's home directory to create the virtual environment
+# This ensures the venv is created in the user's home, even if the script is run with sudo.
+if [ "$EUID" -eq 0 ]; then
+    CALLING_USER="${SUDO_USER:-$(logname 2>/dev/null || whoami)}"
+    USER_HOME=$(getent passwd "$CALLING_USER" | cut -d: -f6)
+    if [ -z "$USER_HOME" ]; then
+        echo "Error: Could not determine calling user's home directory. Exiting."
+        exit 1
+    fi
+    VENV_DIR="$USER_HOME/scoutsuite_venv"
+    echo "Running as root. Virtual environment will be created in the home directory of user: $CALLING_USER ($USER_HOME)"
+else
+    VENV_DIR="$HOME/scoutsuite_venv"
+    echo "Running as regular user. Virtual environment will be created in your home directory: $HOME"
+fi
+
+echo "Starting ScoutSuite and Cloud CLI installation process..."
+echo "---------------------------------------------------"
+
+# Function to check and install a Debian package
+check_and_install_apt_package() {
+    PACKAGE_NAME=$1
+    echo "Checking for '$PACKAGE_NAME' package..."
+    if ! dpkg -s "$PACKAGE_NAME" >/dev/null 2>&1; then
+        echo "'$PACKAGE_NAME' is not installed. Installing it now..."
+        sudo apt update
+        sudo apt install -y "$PACKAGE_NAME"
+        if [ $? -ne 0 ]; then
+            echo "Error: Failed to install '$PACKAGE_NAME'. Please install it manually and try again."
+            return 1 # Indicate failure
+        fi
+        echo "'$PACKAGE_NAME' installed successfully."
+    else
+        echo "'$PACKAGE_NAME' is already installed."
+    fi
+    return 0 # Indicate success
+}
+
+# --- Common OS Dependencies ---
+# Check and install python3-venv
+if ! check_and_install_apt_package "python3-venv"; then
+    echo "Installation failed due to missing 'python3-venv'. Exiting."
+    exit 1
+fi
+
+# Check and install unzip (needed for AWS CLI v2 installation method)
+if ! check_and_install_apt_package "unzip"; then
+    echo "Warning: 'unzip' could not be installed. AWS CLI installation might fail."
+    # Continue as unzip is not critical for other parts
+fi
+
+# Check and install ca-certificates and gnupg for various CLI installations
+if ! check_and_install_apt_package "ca-certificates"; then
+    echo "Warning: 'ca-certificates' could not be installed. Some CLI installations might fail."
+fi
+if ! check_and_install_apt_package "gnupg"; then
+    echo "Warning: 'gnupg' could not be installed. Some CLI installations might fail."
+fi
+
+# --- Virtual Environment Setup ---
+echo "Creating virtual environment at: $VENV_DIR"
+python3 -m venv "$VENV_DIR"
+if [ $? -ne 0 ]; then
+    echo "Error: Failed to create virtual environment at $VENV_DIR. Please check permissions or disk space."
+    exit 1
+fi
+echo "Virtual environment created successfully."
+
+echo "Activating virtual environment..."
+source "$VENV_DIR/bin/activate"
+if [ $? -ne 0 ]; then
+    echo "Error: Failed to activate virtual environment. Exiting."
+    exit 1
+fi
+echo "Virtual environment activated."
+
+# --- Python Package Installation (ScoutSuite and its direct dependencies) ---
+echo "Installing Python dependencies ('asyncio_throttle', 'scoutsuite') within the virtual environment..."
+pip install asyncio_throttle
+if [ $? -ne 0 ]; then
+    echo "Error: Failed to install 'asyncio_throttle'. Please check your internet connection or try again."
+    deactivate
+    exit 1
+fi
+echo "'asyncio_throttle' installed."
+
+pip install scoutsuite
+if [ $? -ne 0 ]; then
+    echo "Error: Failed to install 'scoutsuite'. Please check your internet connection or try again."
+    deactivate
+    exit 1
+fi
+echo "'scoutsuite' installed."
+
+# --- Cloud CLI Installations ---
+
+echo "Checking and installing Cloud CLIs..."
+
+# --- AWS CLI v2 Installation ---
+echo "--- AWS CLI v2 ---"
+if command -v aws &>/dev/null; then
+    echo "AWS CLI is already installed."
+else
+    echo "AWS CLI not found. Attempting to install AWS CLI v2..."
+    AWS_CLI_V2_ZIP="awscliv2.zip"
+    AWS_CLI_INSTALL_DIR="/tmp/aws-cli-install" # Use /tmp for temporary extraction
+
+    # Download AWS CLI v2
+    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "$AWS_CLI_V2_ZIP"
+    if [ $? -ne 0 ]; then
+        echo "Error: Failed to download AWS CLI v2. Please check internet connection or curl."
+    else
+        # Create a temporary directory for extraction
+        mkdir -p "$AWS_CLI_INSTALL_DIR"
+
+        # Unzip and install
+        unzip -q "$AWS_CLI_V2_ZIP" -d "$AWS_CLI_INSTALL_DIR"
+        if [ $? -ne 0 ]; then
+            echo "Error: Failed to unzip AWS CLI v2. Ensure 'unzip' is installed."
+        else
+            # Run the install script (sudo is handled by the script itself)
+            sudo "$AWS_CLI_INSTALL_DIR/aws/install" --update
+            if [ $? -ne 0 ]; then
+                echo "Error: AWS CLI v2 installation script failed. Please check permissions."
+            else
+                echo "AWS CLI v2 installed successfully."
+            fi
+        fi
+        # Clean up temporary files
+        rm -rf "$AWS_CLI_V2_ZIP" "$AWS_CLI_INSTALL_DIR"
+    fi
+fi
+
+# --- Azure CLI Installation ---
+echo "--- Azure CLI ---"
+if command -v az &>/dev/null; then
+    echo "Azure CLI is already installed."
+else
+    echo "Azure CLI not found. Attempting to install Azure CLI..."
+    # Ensure apt-transport-https is installed for secure apt
+    check_and_install_apt_package "apt-transport-https"
+
+    sudo curl -sL https://aka.ms/InstallAzureCliDeb | sudo bash
+    if [ $? -ne 0 ]; then
+        echo "Error: Azure CLI installation script failed. Please check internet connection or curl/sudo permissions."
+    else
+        echo "Azure CLI installed successfully."
+    fi
+fi
+
+# --- Google Cloud SDK (gcloud CLI) Installation ---
+echo "--- Google Cloud SDK (gcloud CLI) ---"
+if command -v gcloud &>/dev/null; then
+    echo "Google Cloud SDK is already installed."
+else
+    echo "Google Cloud SDK not found. Attempting to install Google Cloud SDK..."
+    # Add the Cloud SDK distribution URI as a package source
+    echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list > /dev/null
+
+    # Import the Google Cloud public key
+    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
+    if [ $? -ne 0 ]; then
+        echo "Error: Failed to import Google Cloud public key. Installation might proceed but with warnings."
+    fi
+
+    # Update the package list and install the Cloud SDK
+    sudo apt update
+    sudo apt install -y google-cloud-sdk
+    if [ $? -ne 0 ]; then
+        echo "Error: Google Cloud SDK installation failed. Please check apt setup."
+    else
+        echo "Google Cloud SDK installed successfully."
+    fi
+fi
+
+
+echo "---------------------------------------------------"
+echo "ScoutSuite and Cloud CLI installation process completed."
+echo "You can now run ScoutSuite using the 'run_scoutsuite.sh' script."
+echo "Remember to authenticate your CLIs (e.g., aws configure, az login, gcloud auth login) before running ScoutSuite."
+echo "---------------------------------------------------"
+
+# Deactivate the virtual environment to return to the system shell
+deactivate
+echo "Virtual environment deactivated."
+```
+
+<h3>3.2. Create <code>run_scoutsuite.sh</code></h3>
+<p>Create a file named <code>run_scoutsuite.sh</code> (e.g., in your home directory <code>~/</code>) and paste the following content:</p>
+<pre><code>#!/bin/bash
+
+# Determine the actual user's home directory to find the virtual environment
+if [ "$EUID" -eq 0 ]; then
+    # Script is being run as root (e.g., via sudo)
+    CALLING_USER="${SUDO_USER:-$(logname 2>/dev/null || whoami)}"
+    USER_HOME=$(getent passwd "$CALLING_USER" | cut -d: -f6)
+    if [ -z "$USER_HOME" ]; then
+        echo "Error: Could not determine calling user's home directory. Exiting."
+        exit 1
+    fi
+    VENV_DIR="$USER_HOME/scoutsuite_venv"
+    echo "Running as root. Looking for virtual environment in the home directory of user: $CALLING_USER ($USER_HOME)"
+else
+    # Script is being run as a regular user
+    VENV_DIR="$HOME/scoutsuite_venv"
+    echo "Running as regular user. Looking for virtual environment in your home directory: $HOME"
+fi
+
+echo "Attempting to run ScoutSuite..."
+echo "---------------------------------------------------"
+
+# Step 1: Check if the virtual environment exists
+if [ ! -d "$VENV_DIR" ]; then
+    echo "Error: Virtual environment not found at $VENV_DIR."
+    echo "Please ensure the installation script ran successfully and created it in your user's home directory."
+    echo "If it was created in /root, you might need to move it or manually activate from there."
+    exit 1
+fi
+
+# Step 2: Activate the virtual environment
+echo "Activating virtual environment from: $VENV_DIR"
+source "$VENV_DIR/bin/activate"
+if [ $? -ne 0 ]; then
+    echo "Error: Failed to activate virtual environment."
+    echo "You can try sourcing it manually: source $VENV_DIR/bin/activate"
+    exit 1
+fi
+echo "Virtual environment activated."
+
+# Step 3: Run the 'scout' command
+# "$@" passes all arguments received by this script to the 'scout' command
+echo "Executing 'scout $@'..."
+scout "$@"
+
+# Step 4: Deactivate the virtual environment after ScoutSuite finishes
+deactivate
+echo "Virtual environment deactivated."
+
+echo "---------------------------------------------------"
+echo "ScoutSuite execution finished."
+echo "---------------------------------------------------"
+</code></pre>
+
+<h3>4. Installation Steps</h3>
+<p>1. <strong>Save the scripts:</strong></p>
+<ul>
+    <li>Open a text editor (e.g., <code>nano</code> or <code>gedit</code>) on your Kali Linux machine.</li>
+    <li>Copy the content of the <code>install_script</code> code block into a new file and save it as <code>install_scoutsuite.sh</code> in your user's home directory (e.g., <code>/home/kali/</code>).</li>
+    <li>Copy the content of the <code>run_scoutsuite.sh</code> code block (directly above this section) into another new file and save it as <code>run_scoutsuite.sh</code> in the <em>same</em> directory (<code>/home/kali/</code>).</li>
+</ul>
+<p>2. <strong>Make the scripts executable:</strong><br>
+    Open a terminal and run the following commands:</p>
+<pre><code>chmod +x ~/install_scoutsuite.sh
+chmod +x ~/run_scoutsuite.sh
+</code></pre>
+<p>3. <strong>Clean up any previous (misplaced) installations:</strong><br>
+    If you ran the <code>install_scoutsuite.sh</code> script with <code>sudo</code> before, it might have created the virtual environment in <code>/root/</code>. It's crucial to remove this if it exists to avoid conflicts.</p>
+<pre><code>sudo rm -rf /root/scoutsuite_venv
+</code></pre>
+<p>4. <strong>Run the installation script:</strong><br>
+    Execute the installation script. It will handle creating the virtual environment, installing ScoutSuite, and installing necessary Cloud CLIs.</p>
+<pre><code>bash ~/install_scoutsuite.sh
+</code></pre>
+<ul>
+    <li>The script will prompt you for your <code>sudo</code> password as needed for <code>apt</code> commands or CLI installations.</li>
+    <li>Pay attention to the output. It should successfully install <code>asyncio_throttle</code>, <code>scoutsuite</code>, and the detected cloud CLIs within the newly created virtual environment in your user's home directory (<code>/home/kali/scoutsuite_venv</code>).</li>
+</ul>
+
+<h3>5. Running ScoutSuite</h3>
+<p>Once the installation script completes successfully, you can run ScoutSuite using the <code>run_scoutsuite.sh</code> script.</p>
+<h4>5.1. Basic Execution</h4>
+<p>To run ScoutSuite for a specific cloud provider, you'll pass the provider name as an argument to the script.</p>
+<p><strong>Example: Running ScoutSuite for AWS</strong></p>
+<p>First, ensure your AWS credentials are configured (e.g., via <code>aws configure</code> or by setting environment variables <code>AWS_ACCESS_KEY_ID</code>, <code>AWS_SECRET_ACCESS_KEY</code>, <code>AWS_DEFAULT_REGION</code>).</p>
+<p>Then, run:</p>
+<pre><code>bash ~/run_scoutsuite.sh aws
+</code></pre>
+<p>ScoutSuite will then begin collecting data from your AWS environment.</p>
+<h4>5.2. Common Cloud Provider Commands</h4>
+<ul>
+    <li><strong>AWS:</strong>
+<pre><code>bash ~/run_scoutsuite.sh aws
+</code></pre>
+(Requires AWS CLI configured or environment variables set).</li>
+    <li><strong>Azure:</strong>
+<pre><code>bash ~/run_scoutsuite.sh azure
+</code></pre>
+(Requires Azure CLI configured and logged in, e.g., <code>az login</code>).</li>
+    <li><strong>GCP:</strong>
+<pre><code>bash ~/run_scoutsuite.sh gcp --project-id your-gcp-project-id
+</code></pre>
+(Requires GCP SDK configured and authenticated, e.g., <code>gcloud auth application-default login</code>). Replace <code>your-gcp-project-id</code> with your actual project ID.</li>
+    <li><strong>Other providers:</strong> Refer to the official ScoutSuite documentation for specific commands and authentication methods for other providers (e.g., Kubernetes, OCI, Alibaba Cloud). You can typically see options by running <code>bash ~/run_scoutsuite.sh --help</code>.</li>
+</ul>
+<h4>5.3. Viewing Results</h4>
+<p>After ScoutSuite completes its scan, it will generate an HTML report in a directory within the current working directory (where you executed <code>run_scoutsuite.sh</code>). The output will typically tell you the path to the report, e.g.:</p>
+<pre><code>Report generated to: scoutsuite-report/aws-report-YYYYMMDDHHMMSS.html
+</code></pre>
+<p>You can open this report in your web browser:</p>
+<pre><code>firefox /path/to/your/report.html
+# Example: firefox ~/scoutsuite-results/aws-report-YYYYMMDDHHMMSS.html
+</code></pre>
+
+<h3>6. Interpreting Results</h3>
+<p>The generated HTML report provides a comprehensive overview of your cloud environment's security posture. It categorizes findings by service, severity, and type. Review the report to identify:</p>
+<ul>
+    <li><strong>High-Severity Findings:</strong> These are critical vulnerabilities or misconfigurations that require immediate attention (e.g., publicly exposed databases, overly permissive IAM policies).</li>
+    <li><strong>Medium/Low-Severity Findings:</strong> These indicate potential risks or best practice violations that should be addressed as part of your ongoing security improvements.</li>
+    <li><strong>Remediation Steps:</strong> ScoutSuite often provides hints or links to documentation on how to fix identified issues.</li>
+</ul>
+<p>Use this report as a starting point for hardening your cloud environment.</p>
+
+<h3>7. Report Exporting</h3>
+<p>ScoutSuite primarily generates reports in <strong>HTML format</strong>, which is interactive and designed for easy viewing in a web browser. This is its default and most feature-rich output.</p>
+<p>However, ScoutSuite also supports exporting findings in <strong>JSON format</strong>. This is particularly useful for:</p>
+<ul>
+    <li><strong>Integration with other tools:</strong> You can parse the JSON output programmatically for further analysis, dashboarding, or integration into security information and event management (SIEM) systems.</li>
+    <li><strong>Automation:</strong> Incorporating ScoutSuite into CI/CD pipelines or automated security checks.</li>
+    <li><strong>Auditing and Record-Keeping:</strong> Maintaining raw, structured data of findings.</li>
+</ul>
+<p>To generate a JSON report, you can use the <code>-o</code> or <code>--output</code> flag followed by <code>json</code> as the format and a desired output file path.</p>
+<p><strong>Example:</strong> Generating a JSON report <strong>for AWS</strong></p>
+<pre><code>bash ~/run_scoutsuite.sh aws -o json-report.json --output-format json
+</code></pre>
+<ul>
+    <li><code>-o json-report.json</code>: Specifies the output file path and name (e.g., <code>json-report.json</code>).</li>
+    <li><code>--output-format json</code>: Explicitly tells ScoutSuite to export the report in JSON format.</li>
+</ul>
+<p>After running this command, a file named <code>json-report.json</code> will be created in the directory from which you executed the <code>run_scoutsuite.sh</code> script.</p>
+<div class="note">
+    <p><strong>Note:</strong> The HTML report is generally sufficient for human review and includes most of the details needed for remediation. The JSON export is for more advanced programmatic use cases.</p>
+</div>
+
+<h3>8. Important Considerations</h3>
+<ul>
+    <li><strong>Permissions:</strong> Always adhere to the principle of least privilege when configuring credentials for ScoutSuite. Grant only the necessary read-only permissions required for auditing.</li>
+    <li><strong>Cost:</strong> Running ScoutSuite might incur minor API call costs from your cloud provider.</li>
+    <li><strong>Virtual Environments:</strong> Remember that the <code>scout</code> command is only available when the virtual environment is active. The <code>run_scoutsuite.sh</code> script handles this for you. If you manually activate the venv, you'll need to run <code>source ~/scoutsuite_venv/bin/activate</code> in each new terminal session.</li>
+    <li><strong>Updates:</strong> To update ScoutSuite or its dependencies in the future, activate your virtual environment (<code>source ~/scoutsuite_venv/bin/activate</code>) and run <code>pip install --upgrade scoutsuite</code> or <code>pip install --upgrade packagename</code>. You can also re-run the <code>install_scoutsuite.sh</code> script to perform an update, as <code>pip install</code> will upgrade existing packages.</li>
+</ul>
+
+    </div>
+</body>
+</html>
