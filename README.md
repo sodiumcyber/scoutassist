@@ -1,7 +1,7 @@
 # ScoutAssist 
 ## ScoutSuite Setup & Usage Guide for Kali Linux
 
-This repository provides a streamlined guide and helper scripts for setting up and running **ScoutSuite**, an open-source multi-cloud security auditing tool, on Kali Linux. It aims to simplify the process of assessing the security posture of your cloud environments directly from your penetration testing workstation.
+This repository provides a streamlined guide and helper scripts for setting up and running **ScoutSuite**, an open-source multi-cloud security auditing tool, on Linux. It aims to simplify the process of assessing the security posture of your cloud environments directly from your penetration testing workstation.
 
 ---
 
@@ -30,8 +30,6 @@ Leveraging ScoutSuite with the provided setup scripts offers several key advanta
 ## Getting Started
 
 For detailed, step-by-step instructions on installation, configuration, and running ScoutSuite, please refer to the `instructions.html` file in this repository.
-
-* **[Link to instructions.html here (e.g., `instructions.html`)]**
 
 ---
 
